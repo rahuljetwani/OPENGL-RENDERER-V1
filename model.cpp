@@ -140,7 +140,7 @@ std::vector<float> model::getFloats(json accessor)
 	unsigned int accByteOffset = accessor.value("byteOffset", 0);
 	std::string type = accessor["type"];
 
-	json bufferView = JSON["bufferviews"][bufferViewInd];
+	json bufferView = JSON["bufferViews"][bufferViewInd];
 	unsigned int byteOffset = bufferView["byteOffset"];
 
 	unsigned int numPerVert;
@@ -150,17 +150,17 @@ std::vector<float> model::getFloats(json accessor)
 	else if (type == "VEC4") numPerVert = 4;
 	else throw std::invalid_argument("TYPE INVALID NOT SCALAR/VEC2/VEC3/VEC4");
 
-	unsigned int beginingOfData = byteOffset + accByteOffset;
+	unsigned int beginningOfData = byteOffset + accByteOffset;
 	unsigned int lengthOfData = count * 4 * numPerVert;
-	for (unsigned int i = beginingOfData; i < beginingOfData + lengthOfData; i)
+	for (unsigned int i = beginningOfData; i < beginningOfData + lengthOfData; i += 4)
 	{
-		unsigned char byte[] = { data[i++], data[i++], data[i++], data[i++] };
+		unsigned char byte[] = { data[i], data[i+1], data[i+2], data[i+3] };
 		float value;
 		std::memcpy(&value, byte, sizeof(float));
 		floatVec.push_back(value);
 	}
-
-	return floatVec;
+	
+	return floatVec; 
 }
 
 std::vector<GLuint> model::getIndices(json accessor)
@@ -172,37 +172,37 @@ std::vector<GLuint> model::getIndices(json accessor)
 	unsigned int accByteOffset = accessor.value("byteOffset", 0);
 	unsigned int componentType = accessor["componentType"];
 
-	json bufferView = JSON["bufferviews"][bufferViewInd];
+	json bufferView = JSON["bufferViews"][bufferViewInd];
 	unsigned int byteOffset = bufferView["byteOffset"];
 
 
-	unsigned int beginingOfData = byteOffset + accByteOffset;
+	unsigned int beginningOfData = byteOffset + accByteOffset;
 	if (componentType == 5125)
 	{
-		for (unsigned int i = beginingOfData; i < byteOffset + accByteOffset + count * 4; i)
+		for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4; i += 4)
 		{
-			unsigned char byte[] = { data[i++], data[i++], data[i++], data[i++] };
-			float value;
+			unsigned char byte[] = { data[i], data[i+1], data[i+2], data[i+3] };
+			unsigned int value;
 			std::memcpy(&value, byte, sizeof(unsigned int));
-			indices.push_back(value);
+			indices.push_back((GLuint)value);
 		}
 	}
 	else if (componentType == 5123)
 	{
-		for (unsigned int i = beginingOfData; i < byteOffset + accByteOffset + count * 2; i)
+		for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i += 2)
 		{
-			unsigned char byte[] = { data[i++], data[i++] };
-			float value;
+			unsigned char byte[] = { data[i], data[i + 1] };
+			unsigned short  value;
 			std::memcpy(&value, byte, sizeof(unsigned short));
 			indices.push_back(GLuint(value));
 		}
 	}
 	else if (componentType == 5122)
 	{
-		for (unsigned int i = beginingOfData; i < byteOffset + accByteOffset + count * 2; i)
+		for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i += 2)
 		{
-			unsigned char byte[] = { data[i++], data[i++] };
-			float value;
+			unsigned char byte[] = { data[i], data[i + 1] };
+			short  value;
 			std::memcpy(&value, byte, sizeof(short));
 			indices.push_back(GLuint(value));
 		}
@@ -215,12 +215,12 @@ std::vector<Texture> model::getTextures()
 	std::vector<Texture> textures;
 
 	std::string fileStr = std::string(file);
-	std::string fileDirectory = fileStr.substr(0, fileStr.find_first_of('/') + 1);
+	std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
 
 
-	for (unsigned int i = 0; i < JSON["image"].size(); i++)
+	for (unsigned int i = 0; i < JSON["images"].size(); i++)
 	{
-		std::string texPath = JSON["image"][i]["uri"];
+		std::string texPath = JSON["images"][i]["uri"];
 
 		bool skip = false;
 		for (unsigned int j = 0; j < loadedTexName.size(); j++)
@@ -242,7 +242,7 @@ std::vector<Texture> model::getTextures()
 				loadedTex.push_back(diffuse);
 				loadedTexName.push_back(texPath);
 			}
-			else if (texPath.find("MetallicRoughness") != std::string::npos)
+			else if (texPath.find("metallicRoughness") != std::string::npos)
 			{
 				Texture specular = Texture((fileDirectory + texPath).c_str(), "specular", loadedTex.size());
 				textures.push_back(specular);

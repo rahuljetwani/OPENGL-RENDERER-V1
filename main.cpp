@@ -42,7 +42,7 @@ int main()
 
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f)); // Creates camera object
 
-	model _model("models/sword/scene.gltf");
+	model _model("F:/Rahul30.12.2020/openGL/Graphics/models/bunny/scene.gltf");
 
 	//MAIN WHILE LOOP
 	while(!glfwWindowShouldClose(window))

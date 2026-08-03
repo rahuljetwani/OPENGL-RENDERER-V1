@@ -31,7 +31,7 @@ void main()
     normal = aNormal;                                                               // Assigns the normal from the Vertex Data to "Normal"    
     color = aColor;                                                                 // Assigns the colors from the Vertex Data to "color"
     texCoord = mat2(0.0, -1.0, 1.0, 0.0) * aTex;                                    // Assigns the texture coordinates from the Vertex Data to "texCoord"
-    gl_Position = camMatrix * model * vec4(aPos, 1.0);                              // Outputs the positions/coordinates of all vertices
+    gl_Position = camMatrix * vec4(crntPos, 1.0);                              // Outputs the positions/coordinates of all vertices
     
 
 }
