@@ -40,13 +40,37 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);			// Enables the Depth Buffer
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f)); // Creates camera object
 
-	model _model("F:/Rahul30.12.2020/openGL/Graphics/models/bunny/scene.gltf");
+	model _model("F:/Rahul30.12.2020/openGL/Graphics/models/hand_low_poly/scene.gltf");
+
+	//FPS COUNTER
+	double prevTime = 0.0;
+	double crntTime = 0.0;
+	double timeDiff;
+	unsigned int counter = 0;
 
 	//MAIN WHILE LOOP
 	while(!glfwWindowShouldClose(window))
 	{
+		//FPSCOUNTER
+		crntTime = glfwGetTime();
+		timeDiff = crntTime - prevTime;
+		counter++;
+		if (timeDiff >= 1.0 / 30.0)
+		{
+			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+			std::string ms = std::to_string((timeDiff / counter) * 1000);
+			std::string updatedTitle = "OPENGL <3 - " + FPS + " FPS / " + ms + "ms";
+			glfwSetWindowTitle(window, updatedTitle.c_str());
+			prevTime = crntTime;
+			counter = 0;
+		}
+
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);					//color of background
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		//clean the back buffer and asign new color to it
 

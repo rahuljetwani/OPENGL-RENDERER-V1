@@ -21,70 +21,194 @@ void model::Draw(Shader& shader, Camera& camera)
 
 void model::loadMesh(unsigned int indMesh)
 {
-	unsigned int posAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["POSITION"];
-	unsigned int normalAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["NORMAL"];
-	unsigned int texAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"];
-	unsigned int indAccInd = JSON["meshes"][indMesh]["primitives"][0]["indices"];
+	std::cout << "\n========================================\n";
+	std::cout << "LOADING MESH: " << indMesh << "\n";
+	std::cout << "========================================\n";
 
-	std::vector<float> posVec = getFloats(JSON["accessors"][posAccInd]);
-	std::vector<glm::vec3> positions = groupFloatvec3(posVec);
-	std::vector<float> normalVec = getFloats(JSON["accessors"][normalAccInd]);
-	std::vector<glm::vec3> normals = groupFloatvec3(normalVec);
-	std::vector<float> texVec = getFloats(JSON["accessors"][texAccInd]);
-	std::vector<glm::vec2> texUVs = groupFloatvec2(texVec);
+	json primitive = JSON["meshes"][indMesh]["primitives"][0];
 
-	std::vector<Vertex> vertices = assmebleVertices(positions, normals, texUVs);
-	std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
-	std::vector<Texture> textures = getTextures();
+	std::cout << "POSITION = "
+		<< primitive["attributes"]["POSITION"]
+		<< " | type = "
+		<< primitive["attributes"]["POSITION"].type_name()
+		<< "\n";
+
+	std::cout << "NORMAL = "
+		<< primitive["attributes"]["NORMAL"]
+		<< " | type = "
+		<< primitive["attributes"]["NORMAL"].type_name()
+		<< "\n";
+
+	std::cout << "TEXCOORD_0 = "
+		<< primitive["attributes"]["TEXCOORD_0"]
+		<< " | type = "
+		<< primitive["attributes"]["TEXCOORD_0"].type_name()
+		<< "\n";
+
+	std::cout << "INDICES = "
+		<< primitive["indices"]
+		<< " | type = "
+		<< primitive["indices"].type_name()
+		<< "\n";
+
+	unsigned int posAccInd =
+		primitive["attributes"]["POSITION"].get<unsigned int>();
+
+	unsigned int normalAccInd =
+		primitive["attributes"]["NORMAL"].get<unsigned int>();
+
+	unsigned int texAccInd =
+		primitive["attributes"]["TEXCOORD_0"].get<unsigned int>();
+
+	unsigned int indAccInd =
+		primitive["indices"].get<unsigned int>();
+
+	std::cout << "POSITION accessor: " << posAccInd << "\n";
+	std::cout << "NORMAL accessor: " << normalAccInd << "\n";
+	std::cout << "TEXCOORD accessor: " << texAccInd << "\n";
+	std::cout << "INDEX accessor: " << indAccInd << "\n";
+
+	std::vector<float> posVec =
+		getFloats(JSON["accessors"][posAccInd]);
+
+	std::cout << "Positions loaded: " << posVec.size() << "\n";
+
+	std::vector<glm::vec3> positions =
+		groupFloatvec3(posVec);
+
+	std::vector<float> normalVec =
+		getFloats(JSON["accessors"][normalAccInd]);
+
+	std::cout << "Normals loaded: " << normalVec.size() << "\n";
+
+	std::vector<glm::vec3> normals =
+		groupFloatvec3(normalVec);
+
+	std::vector<float> texVec =
+		getFloats(JSON["accessors"][texAccInd]);
+
+	std::cout << "UVs loaded: " << texVec.size() << "\n";
+
+	std::vector<glm::vec2> texUVs =
+		groupFloatvec2(texVec);
+
+	std::vector<Vertex> vertices =
+		assmebleVertices(positions, normals, texUVs);
+
+	std::cout << "Vertices created: "
+		<< vertices.size()
+		<< "\n";
+
+	std::vector<GLuint> indices =
+		getIndices(JSON["accessors"][indAccInd]);
+
+	std::cout << "Indices loaded: "
+		<< indices.size()
+		<< "\n";
+
+	std::vector<Texture> textures =
+		getTextures();
+
+	std::cout << "Textures loaded: "
+		<< textures.size()
+		<< "\n";
 
 	meshes.push_back(mesh(vertices, indices, textures));
+
+	std::cout << "MESH COMPLETE\n";
 }
 
 void model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 {
+	std::cout << "\n========================================\n";
+	std::cout << "ENTERING NODE: " << nextNode << "\n";
+	std::cout << "========================================\n";
+
 	json node = JSON["nodes"][nextNode];
 
+	std::cout << "NODE JSON:\n";
+	std::cout << node.dump(4) << "\n";
+
 	glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	if (node.find("translation") != node.end())
 	{
+		std::cout << "Found translation\n";
+
 		float transValues[3];
+
 		for (unsigned int i = 0; i < node["translation"].size(); i++)
 		{
-			transValues[i] = (node["translation"][i]);
+			std::cout << "translation[" << i << "] = "
+				<< node["translation"][i]
+				<< " | type = "
+				<< node["translation"][i].type_name()
+				<< "\n";
+
+			transValues[i] = node["translation"][i].get<float>();
 		}
+
 		translation = glm::make_vec3(transValues);
 	}
+
 	glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
 	if (node.find("rotation") != node.end())
 	{
-		float rotValues[4] = 
+		std::cout << "Found rotation\n";
+
+		float rotValues[4] =
 		{
-			node["rotation"][3],
-			node["rotation"][0],
-			node["rotation"][1],
-			node["rotation"][2]
+			node["rotation"][3].get<float>(),
+			node["rotation"][0].get<float>(),
+			node["rotation"][1].get<float>(),
+			node["rotation"][2].get<float>()
 		};
 
 		rotation = glm::make_quat(rotValues);
 	}
+
 	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
 	if (node.find("scale") != node.end())
 	{
+		std::cout << "Found scale\n";
+
 		float scaleValues[3];
+
 		for (unsigned int i = 0; i < node["scale"].size(); i++)
 		{
-			scaleValues[i] = (node["scale"][i]);
+			std::cout << "scale[" << i << "] = "
+				<< node["scale"][i]
+				<< " | type = "
+				<< node["scale"][i].type_name()
+				<< "\n";
+
+			scaleValues[i] = node["scale"][i].get<float>();
 		}
+
 		scale = glm::make_vec3(scaleValues);
 	}
+
 	glm::mat4 matNode = glm::mat4(1.0f);
+
 	if (node.find("matrix") != node.end())
 	{
+		std::cout << "Found matrix\n";
+
 		float matValues[16];
+
 		for (unsigned int i = 0; i < node["matrix"].size(); i++)
 		{
-			matValues[i] = (node["matrix"][i]);
+			std::cout << "matrix[" << i << "] = "
+				<< node["matrix"][i]
+				<< " | type = "
+				<< node["matrix"][i].type_name()
+				<< "\n";
+
+			matValues[i] = node["matrix"][i].get<float>();
 		}
+
 		matNode = glm::make_mat4(matValues);
 	}
 
@@ -100,22 +224,39 @@ void model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 
 	if (node.find("mesh") != node.end())
 	{
+		std::cout << "Node has mesh: "
+			<< node["mesh"]
+			<< "\n";
+
 		translationsMeshes.push_back(translation);
 		rotationsMeshes.push_back(rotation);
 		scalesMeshes.push_back(scale);
 		matricesMeshes.push_back(matNextNode);
 
+		std::cout << "Calling loadMesh()...\n";
+
 		loadMesh(node["mesh"]);
+
+		std::cout << "loadMesh() completed.\n";
 	}
 
 	if (node.find("children") != node.end())
 	{
+		std::cout << "Children count: "
+			<< node["children"].size()
+			<< "\n";
+
 		for (unsigned int i = 0; i < node["children"].size(); i++)
 		{
+			std::cout << "Going to child: "
+				<< node["children"][i]
+				<< "\n";
+
 			traverseNode(node["children"][i], matNextNode);
 		}
 	}
 
+	std::cout << "FINISHED NODE: " << nextNode << "\n";
 }
 
 std::vector<unsigned char> model::getData()
@@ -141,26 +282,46 @@ std::vector<float> model::getFloats(json accessor)
 	std::string type = accessor["type"];
 
 	json bufferView = JSON["bufferViews"][bufferViewInd];
-	unsigned int byteOffset = bufferView["byteOffset"];
+
+	// FIX: byteOffset is optional in glTF
+	unsigned int byteOffset = bufferView.value("byteOffset", 0);
 
 	unsigned int numPerVert;
-	if (type == "SCALAR") numPerVert = 1;
-	else if (type == "VEC2") numPerVert = 2;
-	else if (type == "VEC3") numPerVert = 3;
-	else if (type == "VEC4") numPerVert = 4;
-	else throw std::invalid_argument("TYPE INVALID NOT SCALAR/VEC2/VEC3/VEC4");
+
+	if (type == "SCALAR")
+		numPerVert = 1;
+	else if (type == "VEC2")
+		numPerVert = 2;
+	else if (type == "VEC3")
+		numPerVert = 3;
+	else if (type == "VEC4")
+		numPerVert = 4;
+	else
+		throw std::invalid_argument("TYPE INVALID NOT SCALAR/VEC2/VEC3/VEC4");
 
 	unsigned int beginningOfData = byteOffset + accByteOffset;
 	unsigned int lengthOfData = count * 4 * numPerVert;
-	for (unsigned int i = beginningOfData; i < beginningOfData + lengthOfData; i += 4)
+
+	for (unsigned int i = beginningOfData;
+		i < beginningOfData + lengthOfData;
+		i += 4)
 	{
-		unsigned char byte[] = { data[i], data[i+1], data[i+2], data[i+3] };
+		unsigned char byte[] =
+		{
+			data[i],
+			data[i + 1],
+			data[i + 2],
+			data[i + 3]
+		};
+
 		float value;
+
 		std::memcpy(&value, byte, sizeof(float));
+
 		floatVec.push_back(value);
 	}
-	
-	return floatVec; 
+
+	return floatVec;
 }
 
 std::vector<GLuint> model::getIndices(json accessor)
@@ -173,40 +334,72 @@ std::vector<GLuint> model::getIndices(json accessor)
 	unsigned int componentType = accessor["componentType"];
 
 	json bufferView = JSON["bufferViews"][bufferViewInd];
-	unsigned int byteOffset = bufferView["byteOffset"];
 
+	// FIX: byteOffset is optional in glTF
+	unsigned int byteOffset = bufferView.value("byteOffset", 0);
 
 	unsigned int beginningOfData = byteOffset + accByteOffset;
+
 	if (componentType == 5125)
 	{
-		for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4; i += 4)
+		for (unsigned int i = beginningOfData;
+			i < byteOffset + accByteOffset + count * 4;
+			i += 4)
 		{
-			unsigned char byte[] = { data[i], data[i+1], data[i+2], data[i+3] };
+			unsigned char byte[] =
+			{
+				data[i],
+				data[i + 1],
+				data[i + 2],
+				data[i + 3]
+			};
+
 			unsigned int value;
+
 			std::memcpy(&value, byte, sizeof(unsigned int));
+
 			indices.push_back((GLuint)value);
 		}
 	}
 	else if (componentType == 5123)
 	{
-		for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i += 2)
+		for (unsigned int i = beginningOfData;
+			i < byteOffset + accByteOffset + count * 2;
+			i += 2)
 		{
-			unsigned char byte[] = { data[i], data[i + 1] };
-			unsigned short  value;
+			unsigned char byte[] =
+			{
+				data[i],
+				data[i + 1]
+			};
+
+			unsigned short value;
+
 			std::memcpy(&value, byte, sizeof(unsigned short));
+
 			indices.push_back(GLuint(value));
 		}
 	}
 	else if (componentType == 5122)
 	{
-		for (unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i += 2)
+		for (unsigned int i = beginningOfData;
+			i < byteOffset + accByteOffset + count * 2;
+			i += 2)
 		{
-			unsigned char byte[] = { data[i], data[i + 1] };
-			short  value;
+			unsigned char byte[] =
+			{
+				data[i],
+				data[i + 1]
+			};
+
+			short value;
+
 			std::memcpy(&value, byte, sizeof(short));
+
 			indices.push_back(GLuint(value));
 		}
 	}
+
 	return indices;
 }
 
