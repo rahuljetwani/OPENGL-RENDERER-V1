@@ -43,14 +43,10 @@ void mesh::Draw
 		std::string num;
 		std::string type = textures[i].type;
 
-		if (type == "Diffuse")
-		{
+		if (type == "diffuse")
 			num = std::to_string(numDiffuse++);
-		}
-		else if (type == "Specular")
-		{
+		else if (type == "specular")
 			num = std::to_string(numSpecular++);
-		}
 		
 		textures[i].texUnit(shader, (type + num).c_str(), i);
 		textures[i].Bind();

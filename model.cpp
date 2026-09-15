@@ -11,11 +11,18 @@ model::model(const char* file)
 	traverseNode(0);
 }
 
-void model::Draw(Shader& shader, Camera& camera)
+void model::Draw(Shader& shader, Camera& camera, float sizeScale)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].mesh::Draw(shader, camera, matricesMeshes[i]);
+		meshes[i].mesh::Draw(
+			shader,
+			camera,
+			matricesMeshes[i],
+			glm::vec3(0.0f, 0.0f, 0.0f),   // translation
+			glm::quat(1.0f, 0.0f, 0.0f, 0.0f), // rotation
+			glm::vec3(sizeScale)           // <- your 0-1 size control
+		);
 	}
 }
 

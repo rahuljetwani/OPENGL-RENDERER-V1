@@ -68,6 +68,24 @@
     <None Include="light.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="framebuffer.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="framebuffer.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="skybox.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="skybox.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shadowmap.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shadowmap.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaderClass.h">

@@ -27,24 +27,24 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);		//vertex shaderObj and its Ref 
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);		//connect the vertex souce code to shaderObj
-	glCompileShader(vertexShader);		//vertex Shader to Machine Code
+	glCompileShader(vertexShader);								//vertex Shader to Machine Code
 	compileErrors(vertexShader, "VERTEX");
 
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);		//fragment shaderObj and its Ref
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);		//connect fragment source code to shaderObj
-	glCompileShader(fragmentShader);	//fragment shader to machine code
+	glCompileShader(fragmentShader);								//fragment shader to machine code
 	compileErrors(fragmentShader, "FRAGMENT");
 
-	ID = glCreateProgram();	//create shader program and its Ref
+	ID = glCreateProgram();					//create shader program and its Ref
 
 	glAttachShader(ID, vertexShader);		//attach the vertex and fragment
 	glAttachShader(ID, fragmentShader);		//shader to shaderProgram
-	glLinkProgram(ID);		//Link-up all the shaders to the shaderProgram
+	glLinkProgram(ID);						//Link-up all the shaders to the shaderProgram
 	compileErrors(ID, "PROGRAM");
 
-	glDeleteShader(vertexShader);		//delete useless shader
-	glDeleteShader(fragmentShader);		//delete useless shader
+	glDeleteShader(vertexShader);			//delete useless shader
+	glDeleteShader(fragmentShader);			//delete useless shader
 
 }
 
